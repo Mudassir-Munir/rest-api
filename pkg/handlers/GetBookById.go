@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/Mudassir-Munir/rest-api/pkg/mocks"
+	"github.com/Mudassir-Munir/rest-api/pkg/modles"
 	"github.com/gorilla/mux"
 )
 
-func GetBookById(w http.ResponseWriter, r *http.Request) {
+func (h handler) GetBookById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	//w.Header().Add("Content-Type", "application/json")
 
@@ -18,13 +19,20 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(vars["id"])
 
 	//iterate through all books
-	for _, book := range mocks.Books {
-		if book.Id == id {
-			//if ids are same send book as response
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(book)
-			break
-		}
+	// for _, book := range mocks.Books {
+	// 	if book.Id == id {
+	//
+
+	// 	}
+	// }
+
+	var book modles.Book
+	//if ids are same send book as response
+	if result := h.DB.First(&book, id); result.Error != nil {
+		fmt.Println(result.Error)
 	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(book)
 
 }

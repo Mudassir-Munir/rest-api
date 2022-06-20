@@ -7,12 +7,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Mudassir-Munir/rest-api/pkg/mocks"
 	"github.com/Mudassir-Munir/rest-api/pkg/modles"
 	"github.com/gorilla/mux"
 )
 
-func UpdateBookById(w http.ResponseWriter, r *http.Request) {
+func (h handler) UpdateBookById(w http.ResponseWriter, r *http.Request) {
 	//Read dynamic id parameter
 	w.Header().Add("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -30,18 +29,18 @@ func UpdateBookById(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &updatedBook)
 
 	//iterate over all books
-	for index, book := range mocks.Books {
-		if book.Id == id {
-			//update book and send response when id mathces dynamic id
-			book.Title = updatedBook.Title
-			book.Author = updatedBook.Author
-			book.Desc = updatedBook.Desc
+	var book modles.Book
 
-			mocks.Books[index] = book
-
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(book)
-			break
-		}
+	if result := h.DB.First(&book, id); result.Error != nil {
+		fmt.Println(result.Error)
 	}
+
+	book.Title = updatedBook.Title
+	book.Author = updatedBook.Author
+	book.Desc = updatedBook.Desc
+
+	h.DB.Save(&book)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(book)
 }

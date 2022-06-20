@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
+
+	// "math/rand"
 	"net/http"
 
-	"github.com/Mudassir-Munir/rest-api/pkg/mocks"
+	// "github.com/Mudassir-Munir/rest-api/pkg/mocks"
 	"github.com/Mudassir-Munir/rest-api/pkg/modles"
 )
 
-func AddBook(w http.ResponseWriter, r *http.Request) {
+func (h handler) AddBook(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
@@ -23,8 +24,14 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	var book modles.Book
 	json.Unmarshal(body, &book)
 
-	book.Id = rand.Intn(100)
-	mocks.Books = append(mocks.Books, book)
+	// book.Id = rand.Intn(100)
+	// mocks.Books = append(mocks.Books, book)
+
+	//append book to books table in database
+
+	if result := h.DB.Create(&book); err != nil {
+		fmt.Println(result.Error)
+	}
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
